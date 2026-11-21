@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationTitle>Larpiano Overlay Prototype</ApplicationTitle>
+    <AssemblyTitle>Larpiano Overlay Prototype</AssemblyTitle>
+    <Product>Larpiano Overlay Prototype (Demo)</Product>
+    <Version>1.0.0</Version>
+    <Authors>Larpiano Prototype Team</Authors>
+  </PropertyGroup>
+
+</Project>
