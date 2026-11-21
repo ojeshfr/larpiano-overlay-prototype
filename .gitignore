@@ -1,0 +1,10 @@
+[Bb]in/
+[Oo]bj/
+publish/
+*.user
+*.userosscache
+*.suo
+.vs/
+*.lock.json
+*.nuget.props
+*.nuget.targets
