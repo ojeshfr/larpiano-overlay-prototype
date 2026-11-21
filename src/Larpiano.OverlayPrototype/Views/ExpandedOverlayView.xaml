@@ -1,0 +1,521 @@
+<UserControl x:Class="Larpiano.OverlayPrototype.Views.ExpandedOverlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:Larpiano.OverlayPrototype.Controls"
+             xmlns:vm="clr-namespace:Larpiano.OverlayPrototype.ViewModels"
+             mc:Ignorable="d"
+             Focusable="False"
+             d:DataContext="{d:DesignInstance vm:OverlayViewModel}"
+             d:DesignHeight="450" d:DesignWidth="920">
+
+    <Grid>
+        <!-- Main Content Stack -->
+        <Grid Margin="18,14,18,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" /> <!-- Header -->
+                <RowDefinition Height="Auto" /> <!-- Song & Target Summary -->
+                <RowDefinition Height="*" />    <!-- Piano Roll Preview -->
+                <RowDefinition Height="Auto" /> <!-- Transport Controls -->
+                <RowDefinition Height="Auto" /> <!-- Shortcut Cards -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. HEADER ROW -->
+            <Grid Grid.Row="0" Margin="0,0,0,14" Background="Transparent" MouseDown="OnHeaderMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Branding -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Piano Logo Mark -->
+                    <Border Width="26" Height="26" CornerRadius="6" Background="#261C3D" BorderBrush="{StaticResource AccentDeepBrush}" BorderThickness="1" Margin="0,0,10,0">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- Three stylized vertical piano keys -->
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="4" Height="14" Background="{StaticResource TextPrimaryBrush}" CornerRadius="1" Margin="1,0" />
+                                <Border Width="4" Height="14" Background="{StaticResource TextPrimaryBrush}" CornerRadius="1" Margin="1,0" />
+                                <Border Width="4" Height="14" Background="{StaticResource TextPrimaryBrush}" CornerRadius="1" Margin="1,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <TextBlock Text="larpiano" Style="{StaticResource HeaderBrandTextStyle}" Margin="0,0,8,0" />
+                    <TextBlock Text="Overlay" Style="{StaticResource HeaderBadgeTextStyle}" />
+                </StackPanel>
+
+                <!-- Center Drag Handle Area (transparent space) -->
+                <Border Grid.Column="1" Background="Transparent" />
+
+                <!-- Right: Header Controls (Pin, Settings, Compact, Close) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <!-- Pin Toggle Button -->
+                    <ToggleButton Style="{StaticResource HeaderToggleButtonStyle}"
+                                  IsChecked="{Binding IsPinned}"
+                                  Click="OnPinClick"
+                                  ToolTip="Always on Top (Pin)"
+                                  Margin="2,0">
+                        <!-- Pin Icon -->
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                              Data="M12,2A1,1 0 0,1 13,3V7.58L15.29,9.88A1,1 0 0,1 15.58,10.59V12H9.41V10.59A1,1 0 0,1 9.71,9.88L12,7.58V3A1,1 0 0,1 12,2M11.5,13H13.5V20.5A0.5,0.5 0 0,1 13,21A0.5,0.5 0 0,1 12.5,20.5V13H11.5Z"
+                              Stretch="Uniform" Width="13" Height="13" />
+                    </ToggleButton>
+
+                    <!-- Settings Button -->
+                    <Button Style="{StaticResource HeaderWindowButtonStyle}"
+                            Click="OnSettingsClick"
+                            ToolTip="Overlay Settings &amp; Opacity"
+                            Margin="2,0">
+                        <!-- Gear Icon -->
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
+                              Stretch="Uniform" Width="13" Height="13" />
+                    </Button>
+
+                    <!-- Compact Mode Toggle -->
+                    <Button Style="{StaticResource HeaderWindowButtonStyle}"
+                            Click="OnCompactClick"
+                            ToolTip="Switch to Compact Bar"
+                            Margin="2,0">
+                        <!-- Horizontal Minus / Fold Icon -->
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              Data="M19,13H5V11H19V13Z"
+                              Stretch="Uniform" Width="12" Height="12" />
+                    </Button>
+
+                    <!-- Close Button -->
+                    <Button Style="{StaticResource HeaderCloseButtonStyle}"
+                            Click="OnCloseClick"
+                            ToolTip="Close Overlay Prototype"
+                            Margin="2,0">
+                        <!-- Cross Icon -->
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                              Stretch="Uniform" Width="11" Height="11" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. SONG AND TARGET SUMMARY ROW -->
+            <Grid Grid.Row="1" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Album Art + Song Title + Status Pill -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Abstract Landscape Artwork Graphic -->
+                    <Border Width="68" Height="68" CornerRadius="10" ClipToBounds="True" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" Margin="0,0,16,0">
+                        <Grid>
+                            <!-- Sky gradient -->
+                            <Rectangle>
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#160E29" Offset="0.0" />
+                                        <GradientStop Color="#371B5A" Offset="0.6" />
+                                        <GradientStop Color="#633194" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <!-- Glowing Celestial Body / Moon -->
+                            <Ellipse Width="16" Height="16" Margin="10,18,0,0" HorizontalAlignment="Center">
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush>
+                                        <GradientStop Color="#FFFFFF" Offset="0.0" />
+                                        <GradientStop Color="#D0B3FF" Offset="0.5" />
+                                        <GradientStop Color="#00A879FF" Offset="1.0" />
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+
+                            <!-- Mountain Silhouettes -->
+                            <Path Data="M 0,68 L 22,44 L 46,60 L 68,38 L 68,68 Z" Fill="#120A1F" />
+                            <Path Data="M 0,68 L 14,52 L 32,68 Z" Fill="#1C112E" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Song Info -->
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SongTitle}" Style="{StaticResource SongTitleTextStyle}" Margin="0,0,0,4" />
+                        <TextBlock Text="{Binding SongSubtitle}" Style="{StaticResource SongMetaTextStyle}" Margin="0,0,0,8" />
+
+                        <!-- Status Pill (Ready / Playing / Paused) -->
+                        <Border Background="#261A3C" BorderBrush="{StaticResource AccentDeepBrush}" BorderThickness="1" CornerRadius="12" HorizontalAlignment="Left" Padding="10,3">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- Waveform Icon -->
+                                <Path Fill="{StaticResource AccentSoftBrush}"
+                                      Data="M12,2A1,1 0 0,1 13,3V21A1,1 0 0,1 12,22A1,1 0 0,1 11,21V3A1,1 0 0,1 12,2M7,6A1,1 0 0,1 8,7V17A1,1 0 0,1 7,18A1,1 0 0,1 6,17V7A1,1 0 0,1 7,6M17,6A1,1 0 0,1 18,7V17A1,1 0 0,1 17,18A1,1 0 0,1 16,17V7A1,1 0 0,1 17,6M2,10A1,1 0 0,1 3,11V13A1,1 0 0,1 2,14A1,1 0 0,1 1,13V11A1,1 0 0,1 2,10M22,10A1,1 0 0,1 23,11V13A1,1 0 0,1 22,14A1,1 0 0,1 21,13V11A1,1 0 0,1 22,10Z"
+                                      Stretch="Uniform" Width="11" Height="11" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding PlaybackStateText}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AccentSoftBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Right: Target Status & Mapping Status Cards -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <!-- Roblox Target Info Card (Clearly labeled DEMO) -->
+                    <Border Background="{StaticResource SurfaceElevatedBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Slanted Roblox Icon -->
+                            <Border Width="22" Height="22" CornerRadius="5" Background="#261E36" Margin="0,0,8,0">
+                                <Path Fill="{StaticResource TextPrimaryBrush}"
+                                      Data="M 6,3 L 19,6 L 16,19 L 3,16 Z M 9,9 L 13,10 L 12,13 L 8,12 Z"
+                                      Stretch="Uniform" Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TargetWindowTitle}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                                    <Ellipse Width="6" Height="6" Fill="{StaticResource WarningBrush}" Margin="0,0,5,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding TargetForegroundStatus}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Mapping Info Card (Clearly labeled DEMO MAPPING / NOT CONNECTED) -->
+                    <Border Background="{StaticResource SurfaceElevatedBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="8" Padding="10,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Keyboard Icon -->
+                            <Border Width="22" Height="22" CornerRadius="5" Background="#261E36" Margin="0,0,8,0">
+                                <Path Fill="{StaticResource AccentSoftBrush}"
+                                      Data="M19,8H5A2,2 0 0,0 3,10V16A2,2 0 0,0 5,18H19A2,2 0 0,0 21,16V10A2,2 0 0,0 19,8M5,10H7V12H5V10M8,10H10V12H8V10M11,10H13V12H11V10M14,10H16V12H14V10M19,16H5V14H19V16Z"
+                                      Stretch="Uniform" Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+
+                            <TextBlock Text="{Binding MappingStatus}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- 3. PIANO-ROLL TIMELINE PREVIEW -->
+            <controls:PianoRollPreview Grid.Row="2"
+                                       Progress="{Binding Progress, Mode=TwoWay}"
+                                       MinHeight="130"
+                                       Margin="0,0,0,14" />
+
+            <!-- 4. TRANSPORT CONTROLS ROW -->
+            <Grid Grid.Row="3" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" /> <!-- Transport Buttons -->
+                    <ColumnDefinition Width="*" />    <!-- Time & Progress Bar -->
+                    <ColumnDefinition Width="Auto" /> <!-- Speed & Volume -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Previous, Play/Pause, Next, Stop -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Previous Track Button -->
+                    <Button Style="{StaticResource OverlayButtonStyle}" Click="OnPreviousClick" ToolTip="Reset / Previous Track" Width="38" Height="38" Margin="0,0,6,0">
+                        <Path Fill="{StaticResource TextPrimaryBrush}" Data="M6,6H8V18H6M9.5,12L18,18V6L9.5,12Z" Stretch="Uniform" Width="13" Height="13" />
+                    </Button>
+
+                    <!-- Glowing Play / Pause Button -->
+                    <Button Style="{StaticResource GlowingPlayButtonStyle}" Click="OnPlayPauseClick" ToolTip="Play / Pause (Demo)" Margin="0,0,6,0">
+                        <!-- Shows Play triangle if not playing, Pause double bar if playing -->
+                        <Grid>
+                            <Path Fill="#FFFFFF"
+                                  Data="M8,5.14V19.14L19,12.14L8,5.14Z"
+                                  Stretch="Uniform" Width="14" Height="14"
+                                  Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisibilityConverter}, FallbackValue=Collapsed}" />
+                            <Path Fill="#FFFFFF"
+                                  Data="M14,19H18V5H14M6,19H10V5H6V19Z"
+                                  Stretch="Uniform" Width="14" Height="14"
+                                  Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Visible}" />
+                        </Grid>
+                    </Button>
+
+                    <!-- Next Track Button -->
+                    <Button Style="{StaticResource OverlayButtonStyle}" Click="OnNextClick" ToolTip="Next Demo Song" Width="38" Height="38" Margin="0,0,6,0">
+                        <Path Fill="{StaticResource TextPrimaryBrush}" Data="M16,18H18V6H16M6,18L14.5,12L6,6V18Z" Stretch="Uniform" Width="13" Height="13" />
+                    </Button>
+
+                    <!-- Stop Button -->
+                    <Button Style="{StaticResource OverlayButtonStyle}" Click="OnStopClick" ToolTip="Stop Playback" Width="38" Height="38">
+                        <Path Fill="{StaticResource TextPrimaryBrush}" Data="M18,18H6V6H18V18Z" Stretch="Uniform" Width="12" Height="12" />
+                    </Button>
+                </StackPanel>
+
+                <!-- Center: Elapsed Time & Progress Slider -->
+                <Grid Grid.Column="1" Margin="16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding TimeString}" Style="{StaticResource TimeDisplayTextStyle}" Margin="0,0,12,0" />
+
+                    <!-- Sleek Progress Slider -->
+                    <Slider Grid.Column="1"
+                            Style="{StaticResource PlaybackSliderStyle}"
+                            Minimum="0" Maximum="1"
+                            Value="{Binding Progress, Mode=TwoWay}"
+                            VerticalAlignment="Center"
+                            ToolTip="Seek Playback" />
+                </Grid>
+
+                <!-- Right: Speed Selector & Volume -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Speed Dropdown Button -->
+                    <Button Style="{StaticResource OverlayButtonStyle}" Click="OnSpeedDropdownClick" ToolTip="Playback Speed" Padding="10,6" Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Speed" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,4,0" />
+                            <TextBlock Text="{Binding SpeedText}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,4,0" />
+                            <Path Fill="{StaticResource TextSecondaryBrush}" Data="M7,10L12,15L17,10H7Z" Stretch="Uniform" Width="10" Height="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Volume Icon & Slider (labeled Preview volume (demo)) -->
+                    <Path Fill="{StaticResource TextSecondaryBrush}"
+                          Data="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+                          Stretch="Uniform" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <Slider Style="{StaticResource PlaybackSliderStyle}"
+                            Width="74"
+                            Minimum="0" Maximum="1"
+                            Value="{Binding Volume, Mode=TwoWay}"
+                            VerticalAlignment="Center"
+                            ToolTip="Preview volume (demo)" />
+                </StackPanel>
+            </Grid>
+
+            <!-- 5. BOTTOM SHORTCUT ROW -->
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Shortcut 1: Ctrl + Alt + F8 (Play / Pause) -->
+                <Border Grid.Column="0" Background="{StaticResource SurfaceElevatedBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,8,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6" Background="#261E36" Margin="0,0,8,0">
+                            <Path Fill="{StaticResource AccentSoftBrush}"
+                                  Data="M19,8H5A2,2 0 0,0 3,10V16A2,2 0 0,0 5,18H19A2,2 0 0,0 21,16V10A2,2 0 0,0 19,8M5,10H7V12H5V10M8,10H10V12H8V10M11,10H13V12H11V10M14,10H16V12H14V10M19,16H5V14H19V16Z"
+                                  Stretch="Uniform" Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Ctrl + Alt + F8" Style="{StaticResource ShortcutTitleStyle}" />
+                            <TextBlock Text="Play / Pause (Demo)" Style="{StaticResource ShortcutSublabelStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Shortcut 2: Ctrl + Alt + F9 (Emergency Stop) -->
+                <Border Grid.Column="1" Background="{StaticResource SurfaceElevatedBrush}" BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,8,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6" Background="#261E36" Margin="0,0,8,0">
+                            <Path Fill="{StaticResource DangerBrush}"
+                                  Data="M18,18H6V6H18V18Z"
+                                  Stretch="Uniform" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Ctrl + Alt + F9" Style="{StaticResource ShortcutTitleStyle}" />
+                            <TextBlock Text="Emergency Stop (Demo)" Style="{StaticResource ShortcutSublabelStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Shortcut 3: Mapping Button & Popover Trigger -->
+                <Button Grid.Column="2" Style="{StaticResource OverlayButtonStyle}" Click="OnMappingClick" Padding="10,8" Margin="0,0,8,0" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6" Background="#261E36" Margin="0,0,8,0">
+                            <!-- Crosshair / Mapping Icon -->
+                            <Path Fill="{StaticResource AccentSoftBrush}"
+                                  Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V9H13V6H11M11,15V18H13V15H11M6,11V13H9V11H6M15,11V13H18V11H15Z"
+                                  Stretch="Uniform" Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Mapping" Style="{StaticResource ShortcutTitleStyle}" />
+                            <TextBlock Text="Click to inspect" Style="{StaticResource ShortcutSublabelStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </Button>
+
+                <!-- Shortcut 4: Diagnostics Button & Popover Trigger -->
+                <Button Grid.Column="3" Style="{StaticResource OverlayButtonStyle}" Click="OnDiagnosticsClick" Padding="10,8" Margin="0,0,8,0" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6" Background="#261E36" Margin="0,0,8,0">
+                            <!-- Audio Wave Diagnostics Icon -->
+                            <Path Fill="{StaticResource AccentSoftBrush}"
+                                  Data="M12,2A1,1 0 0,1 13,3V21A1,1 0 0,1 12,22A1,1 0 0,1 11,21V3A1,1 0 0,1 12,2M7,6A1,1 0 0,1 8,7V17A1,1 0 0,1 7,18A1,1 0 0,1 6,17V7A1,1 0 0,1 7,6M17,6A1,1 0 0,1 18,7V17A1,1 0 0,1 17,18A1,1 0 0,1 16,17V7A1,1 0 0,1 17,6M2,10A1,1 0 0,1 3,11V13A1,1 0 0,1 2,14A1,1 0 0,1 1,13V11A1,1 0 0,1 2,10M22,10A1,1 0 0,1 23,11V13A1,1 0 0,1 22,14A1,1 0 0,1 21,13V11A1,1 0 0,1 22,10Z"
+                                  Stretch="Uniform" Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="Diagnostics" Style="{StaticResource ShortcutTitleStyle}" />
+                            <TextBlock Text="Non-activating status" Style="{StaticResource ShortcutSublabelStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </Button>
+
+                <!-- Compact Switch Chevron Button -->
+                <Button Grid.Column="4" Style="{StaticResource OverlayButtonStyle}" Click="OnCompactClick" ToolTip="Collapse to Compact Bar" Width="44">
+                    <Path Fill="{StaticResource TextSecondaryBrush}" Data="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" Stretch="Uniform" Width="14" Height="14" />
+                </Button>
+            </Grid>
+        </Grid>
+
+        <!-- Speed Dropdown Popover Card -->
+        <Border Background="#1C162A"
+                BorderBrush="{StaticResource BorderGlowingBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Width="120"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,120,68"
+                Padding="6"
+                Visibility="{Binding IsSpeedDropdownOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <Border.Effect>
+                <DropShadowEffect Color="#A879FF" BlurRadius="16" ShadowDepth="4" Opacity="0.4" />
+            </Border.Effect>
+            <StackPanel>
+                <Button Style="{StaticResource OverlayButtonStyle}" Click="OnSelectSpeed" Tag="0.75" Content="0.75×" Margin="0,2" />
+                <Button Style="{StaticResource OverlayButtonStyle}" Click="OnSelectSpeed" Tag="1.00" Content="1.00× (Normal)" Margin="0,2" />
+                <Button Style="{StaticResource OverlayButtonStyle}" Click="OnSelectSpeed" Tag="1.25" Content="1.25×" Margin="0,2" />
+                <Button Style="{StaticResource OverlayButtonStyle}" Click="OnSelectSpeed" Tag="1.50" Content="1.50×" Margin="0,2" />
+            </StackPanel>
+        </Border>
+
+        <!-- Mapping Demo Popover -->
+        <Border Background="#181324"
+                BorderBrush="{StaticResource BorderGlowingBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Width="320"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="400,0,0,70"
+                Padding="14"
+                Visibility="{Binding IsMappingPopoverOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="20" ShadowDepth="6" Opacity="0.8" />
+            </Border.Effect>
+            <StackPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="Keyboard Mapping (Demo)" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" />
+                    <Button Style="{StaticResource HeaderCloseButtonStyle}" Click="OnMappingClick" HorizontalAlignment="Right" Width="22" Height="22">
+                        <Path Fill="{StaticResource TextSecondaryBrush}" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Stretch="Uniform" Width="9" Height="9" />
+                    </Button>
+                </DockPanel>
+                <TextBlock Text="Isolated prototype: Not sending input to Roblox or game." FontSize="11" Foreground="{StaticResource WarningBrush}" Margin="0,0,0,8" TextWrapping="Wrap" />
+                <Border Background="#120E1C" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="• Space : Play / Pause" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2" />
+                        <TextBlock Text="• Esc : Stop Playback" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2" />
+                        <TextBlock Text="• Shift + Right : Next Song" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2" />
+                    </StackPanel>
+                </Border>
+                <TextBlock Text="Status: MOCK STATE · UNLINKED" FontSize="10" Foreground="{StaticResource TextMutedBrush}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Diagnostics Popover -->
+        <Border Background="#181324"
+                BorderBrush="{StaticResource BorderGlowingBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Width="340"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,60,70"
+                Padding="14"
+                Visibility="{Binding IsDiagnosticsPopoverOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="20" ShadowDepth="6" Opacity="0.8" />
+            </Border.Effect>
+            <StackPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="Window &amp; Overlay Diagnostics" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" />
+                    <Button Style="{StaticResource HeaderCloseButtonStyle}" Click="OnDiagnosticsClick" HorizontalAlignment="Right" Width="22" Height="22">
+                        <Path Fill="{StaticResource TextSecondaryBrush}" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Stretch="Uniform" Width="9" Height="9" />
+                    </Button>
+                </DockPanel>
+                <Border Background="#120E1C" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                    <StackPanel>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="Non-Activating Style:" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBlock Text="WS_EX_NOACTIVATE" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Right" />
+                        </DockPanel>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="Mouse Activate Hook:" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBlock Text="MA_NOACTIVATE (3)" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Right" />
+                        </DockPanel>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="Clicks Without Foreground Change:" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBlock Text="{Binding NonActivatingClickCount}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AccentSoftBrush}" HorizontalAlignment="Right" />
+                        </DockPanel>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="Last Control Clicked:" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBlock Text="{Binding LastControlClicked}" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Right" />
+                        </DockPanel>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="Roblox Integration:" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                            <TextBlock Text="NONE (Isolated Prototype)" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource WarningBrush}" HorizontalAlignment="Right" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Settings Popover -->
+        <Border Background="#181324"
+                BorderBrush="{StaticResource BorderGlowingBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Width="260"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,48,16,0"
+                Padding="14"
+                Visibility="{Binding IsSettingsPopoverOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="20" ShadowDepth="6" Opacity="0.8" />
+            </Border.Effect>
+            <StackPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="Overlay Settings" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" />
+                    <Button Style="{StaticResource HeaderCloseButtonStyle}" Click="OnSettingsClick" HorizontalAlignment="Right" Width="22" Height="22">
+                        <Path Fill="{StaticResource TextSecondaryBrush}" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Stretch="Uniform" Width="9" Height="9" />
+                    </Button>
+                </DockPanel>
+                <!-- Opacity Slider -->
+                <TextBlock Text="Glass Surface Opacity" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,2" />
+                <Slider Style="{StaticResource PlaybackSliderStyle}"
+                        Minimum="0.70" Maximum="1.0"
+                        Value="{Binding WindowOpacity, Mode=TwoWay}"
+                        Margin="0,0,0,8" />
+                <!-- Always on top toggle -->
+                <DockPanel Margin="0,4,0,4">
+                    <TextBlock Text="Always on top" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                    <ToggleButton Style="{StaticResource HeaderToggleButtonStyle}" IsChecked="{Binding IsPinned}" HorizontalAlignment="Right" Width="40">
+                        <TextBlock Text="{Binding IsPinned, Converter={StaticResource PinTextConverter}}" FontSize="11" FontWeight="SemiBold" />
+                    </ToggleButton>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
