@@ -1,0 +1,80 @@
+<UserControl x:Class="Larpiano.OverlayPrototype.Controls.PianoRollPreview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Focusable="False"
+             d:DesignHeight="140" d:DesignWidth="700">
+
+    <Border Background="#100D1A"
+            BorderBrush="{StaticResource BorderSubtleBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="8,6,8,8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="18" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Top Timestamps Ruler -->
+            <Grid Grid.Row="0" Margin="32,0,8,0">
+                <TextBlock Text="0:00" HorizontalAlignment="Left" Style="{StaticResource TimelineTickLabelStyle}" />
+                <TextBlock Text="0:30" HorizontalAlignment="Center" Margin="-260,0,0,0" Style="{StaticResource TimelineTickLabelStyle}" />
+                <TextBlock Text="1:01" HorizontalAlignment="Center" Style="{StaticResource TimelineTickLabelStyle}" />
+                <TextBlock Text="1:31" HorizontalAlignment="Center" Margin="260,0,0,0" Style="{StaticResource TimelineTickLabelStyle}" />
+                <TextBlock Text="2:02" HorizontalAlignment="Right" Style="{StaticResource TimelineTickLabelStyle}" />
+            </Grid>
+
+            <!-- Main Piano Roll Canvas & Lane Labels -->
+            <Grid Grid.Row="1" Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="28" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Pitch Lane Labels (C6 down to C2) -->
+                <UniformGrid Grid.Column="0" Rows="5" VerticalAlignment="Stretch">
+                    <TextBlock Text="C6" Style="{StaticResource TimelineLaneLabelStyle}" />
+                    <TextBlock Text="C5" Style="{StaticResource TimelineLaneLabelStyle}" />
+                    <TextBlock Text="C4" Style="{StaticResource TimelineLaneLabelStyle}" />
+                    <TextBlock Text="C3" Style="{StaticResource TimelineLaneLabelStyle}" />
+                    <TextBlock Text="C2" Style="{StaticResource TimelineLaneLabelStyle}" />
+                </UniformGrid>
+
+                <!-- Interactive Piano Roll Rendering Element -->
+                <Border x:Name="PianoRollContainer"
+                        Grid.Column="1"
+                        Background="#0D0A15"
+                        CornerRadius="4"
+                        ClipToBounds="True"
+                        Cursor="Hand"
+                        Focusable="False"
+                        MouseDown="OnPianoRollMouseDown"
+                        MouseMove="OnPianoRollMouseMove">
+                    <Grid x:Name="NotesCanvasGrid">
+                        <!-- Custom rendered canvas for notes and lane lines -->
+                        <Canvas x:Name="NotesCanvas" />
+
+                        <!-- Vertical Glowing Playhead -->
+                        <Canvas IsHitTestVisible="False">
+                            <Line x:Name="PlayheadLine"
+                                  Y1="0"
+                                  Y2="{Binding ActualHeight, ElementName=PianoRollContainer}"
+                                  Stroke="#FFFFFF"
+                                  StrokeThickness="1.5">
+                                <Line.Effect>
+                                    <DropShadowEffect Color="{StaticResource AccentColor}"
+                                                      BlurRadius="10"
+                                                      ShadowDepth="0"
+                                                      Opacity="0.9" />
+                                </Line.Effect>
+                            </Line>
+                        </Canvas>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
